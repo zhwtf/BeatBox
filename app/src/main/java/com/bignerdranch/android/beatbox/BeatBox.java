@@ -1,6 +1,8 @@
 package com.bignerdranch.android.beatbox;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -49,15 +51,57 @@ public class BeatBox {
         }
 
         for (String filename : soundNames) {
-            String assetPath = SOUNDS_FOLDER + "/" + filename;
-            Sound sound = new Sound(assetPath);
-            mSounds.add(sound);
+            try {
+                String assetPath = SOUNDS_FOLDER + "/" + filename;
+                Sound sound = new Sound(assetPath);
+                load(sound);
+                mSounds.add(sound);
+            } catch (IOException ioe) {
+                Log.e(TAG, "Could not load sound " + filename, ioe);
+            }
+
         }
+    }
+
+
+    //load方法载入音频
+    /*
+    调用mSoundPool.load(AssetFileDescriptor, int)方法可以把文件载入SoundPool待播。
+为方便管理、重播或卸载音频文件，mSoundPool.load(...)方法会返回一个int型ID。这实际就
+是存储在mSoundId中的ID。调用openFd(String)方法有可能抛出IOException，load(Sound)
+方法也是如此。
+     */
+    private void load(Sound sound) throws IOException {
+        AssetFileDescriptor afd = mAssets.openFd(sound.getAssetPath());
+        int soundId = mSoundPool.load(afd, 1);
+        sound.setSoundId(soundId);
 
     }
 
     public List<Sound> getSounds() {
         return mSounds;
     }
+
+
+
+
+    //播放音频
+    public void play(Sound sound) {
+        Integer soundId = sound.getSoundId();
+        if (soundId == null) {
+            return;
+        }
+        mSoundPool.play(soundId, 1.0f, 1.0f, 1, 0, 1.0f);
+    }
+    /*
+    检查通过以后，就可以调用SoundPool.play(int, float, float, int, int, float)方法
+播放音频了。这些参数依次是：音频ID、左音量、右音量、优先级（无效）、是否循环以及播放
+速率。我们需要最大音量和常速播放，所以传入值1.0。是否循环参数传入0值，代表不循环。（如
+果想无限循环，可以传入1。我们觉得这会非常令人讨厌。
+     */
+    public void release() {
+        mSoundPool.release();
+    }
+
 
 }

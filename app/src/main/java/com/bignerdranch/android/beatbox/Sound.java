@@ -1,5 +1,7 @@
 package com.bignerdranch.android.beatbox;
 
+import android.content.Intent;
+
 /**
  * Created by zhenghao on 2017-07-06.
  */
@@ -7,6 +9,7 @@ package com.bignerdranch.android.beatbox;
 public class Sound {
     private String mAssetPath;
     private String mName;
+    private Integer mSoundId;
 
 
     public Sound(String assetPath) {
@@ -29,4 +32,11 @@ public class Sound {
     }
 
 
+    public Integer getSoundId() {
+        return mSoundId;
+    }
+
+    public void setSoundId(Integer soundId) {
+        mSoundId = soundId;
+    }
 }
